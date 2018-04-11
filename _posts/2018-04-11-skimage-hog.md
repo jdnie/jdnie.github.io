@@ -1,0 +1,218 @@
+SVM+Hog在一些图像算法中也还是有一定的存在价值，在将scikit-image的hog特征计算用c语言实现时，c计算的结果和python计算的结果总是有一点偏差。
+
+```c++
+float orie_flag[10] = {0.0, 0.363969900364, 0.8390986263, 1.73204726945, 5.67124270781,
+            -5.67133071011, -1.73205788383, -0.839103148256, -0.363972905488, -0.0};
+Mat sobel_y = Mat::zeros(Size(64,64), CV_32FC1);
+Mat sobel_x = Mat::zeros(Size(64,64), CV_32FC1);
+Mat magn = Mat::zeros(Size(64,64), CV_32FC1);
+Mat orie = Mat::zeros(Size(64,64), CV_32FC1);
+float ceils[8*8*9] = {0};
+float blocks[7*7*9*4] = {0};
+
+for (int i=0; i<64; i++)
+{
+    for (int j=0; j<64; j++)
+    {
+        gray.at<float>(i,j) = sqrt(gray.at<float>(i,j));
+    }
+}
+
+for (int i=0; i<64; i++)
+{
+    for (int j=1; j<63; j++)
+    {
+        sobel_x.at<float>(i, j) = gray.at<float>(i,j+1) - gray.at<float>(i,j-1);
+    }
+}
+
+for (int i=1; i<63; i++)
+{
+    for (int j=0; j<64; j++)
+    {
+        sobel_y.at<float>(i, j) = gray.at<float>(i+1,j) - gray.at<float>(i-1,j);
+    }
+}
+
+for (int i=0; i<64; i++)
+{
+    for (int j=0; j<64; j++)
+    {
+        magn.at<float>(i, j) = sqrt(sobel_x.at<float>(i, j)*sobel_x.at<float>(i, j) + sobel_y.at<float>(i, j)*sobel_y.at<float>(i, j));
+    }
+}
+
+for (int i=0; i<64; i++)
+{
+    for (int j=0; j<64; j++)
+    {
+        orie.at<float>(i, j) = sobel_y.at<float>(i, j) / (sobel_x.at<float>(i, j) + 0.00001);
+    }
+}
+
+for (int i=0; i<8; i++)
+{
+    for (int j=0; j<8; j++)
+    {
+        for (int m=0; m<8; m++)
+        {
+            for (int n=0; n<8; n++)
+            {
+                int k;
+                float tmp = orie.at<float>(i*8+m, j*8+n);
+                if (tmp >= 0)
+                {
+                    for (k=0; k<4; k++)
+                    {
+                        if (tmp >= orie_flag[k] && tmp < orie_flag[k+1])
+                        {
+                            break;
+                        }
+                    }
+                    ceils[(i*8+j)*9 + k] += magn.at<float>(i*8+m, j*8+n);
+                }
+                else
+                {
+                    for (k=9; k>5; k--)
+                    {
+                        if (tmp <= orie_flag[k] && tmp > orie_flag[k-1])
+                        {
+                            break;
+                        }
+                    }
+                    k = k-1;
+                    ceils[(i*8+j)*9 + k] += magn.at<float>(i*8+m, j*8+n);
+                }
+            }
+        }
+    }
+}
+
+for (int i=0; i<7; i++)
+{
+    for (int j=0; j<7; j++)
+    {
+        float sum_ = 0.00001;
+        for (int k=0; k<9; k++)
+        {
+            sum_ += abs(ceils[(i*8+j)*9 + k]);
+            sum_ += abs(ceils[(i*8+(j+1))*9 + k]);
+            sum_ += abs(ceils[((i+1)*8+(j+1))*9 + k]);
+            sum_ += abs(ceils[((i+1)*8+j)*9 + k]);
+        }
+
+        for (int k=0; k<9; k++)
+        {
+            blocks[(i*7+j)*36 + k] = ceils[(i*8+j)*9 + k] / sum_;
+            blocks[(i*7+j)*36 + k + 9] = ceils[(i*8+(j+1))*9 + k] / sum_;
+            blocks[(i*7+j)*36 + k + 18] = ceils[((i+1)*8+j)*9 + k] / sum_;
+            blocks[(i*7+j)*36 + k + 27] = ceils[((i+1)*8+(j+1))*9 + k] / sum_;
+        }
+    }
+}
+
+for (int i=0; i<7*7*4*9; i++)
+{
+    features[feat_idx++] = blocks[i];
+}
+```
+
+```python
+from skimage.feature import hog
+hog_feat = hog(img, orientations=9,
+                   pixels_per_cell=(8, 8),
+                   cells_per_block=(2, 2),
+                   transform_sqrt=True,
+                   visualise=False, feature_vector=True)
+```
+
+原因：
+
+python中安装的scikit-image是0.13版本的，它在计算hog特征时是这样计算sobel的：
+
+```python
+gy, gx = [np.ascontiguousarray(g, dtype=np.double)
+              for g in np.gradient(image)]
+```
+
+最新版和scikit-image和0.13之前的版本，在计算hog特征时是这样计算sobel的：
+
+```python
+g_row = np.empty(channel.shape, dtype=np.double)
+g_row[0, :] = 0
+g_row[-1, :] = 0
+g_row[1:-1, :] = channel[2:, :] - channel[:-2, :]
+g_col = np.empty(channel.shape, dtype=np.double)
+g_col[:, 0] = 0
+g_col[:, -1] = 0
+g_col[:, 1:-1] = channel[:, 2:] - channel[:, :-2]
+```
+
+在C代码中它的区别就应该是这样的：
+
+```c++
+for (int i=0; i<64; i++)
+{
+    sobel_x.at<float>(i, 0) = (gray.at<float>(i,1) - gray.at<float>(i,0));
+    for (int j=1; j<63; j++)
+    {
+        sobel_x.at<float>(i, j) = (gray.at<float>(i,j+1) - gray.at<float>(i,j-1)) / 2;
+    }
+    sobel_x.at<float>(i, 63) = (gray.at<float>(i,63) - gray.at<float>(i,62));
+}
+
+for (int j=0; j<64; j++)
+{
+    sobel_y.at<float>(0, j) = (gray.at<float>(1,j) - gray.at<float>(0,j));
+    for (int i=1; i<63; i++)
+    {
+        sobel_y.at<float>(i, j) = (gray.at<float>(i+1,j) - gray.at<float>(i-1,j)) / 2;
+    }
+    sobel_y.at<float>(63, j) = (gray.at<float>(63,j) - gray.at<float>(62,j));
+}
+```
+
+```c++
+for (int i=0; i<64; i++)
+{
+    for (int j=1; j<63; j++)
+    {
+        sobel_x.at<float>(i, j) = gray.at<float>(i,j+1) - gray.at<float>(i,j-1);
+    }
+}
+
+for (int i=1; i<63; i++)
+{
+    for (int j=0; j<64; j++)
+    {
+        sobel_y.at<float>(i, j) = gray.at<float>(i+1,j) - gray.at<float>(i-1,j);
+    }
+}
+```
+
+来看下差异吧，都取同一幅图像的第一个Block的Hog特征，它有4个Cell，9个方向，差异还是有一点点的：
+
+```
+[[[ 0.04225977  0.03862688  0.01705302  0.02437312  0.07293652  0.04062629
+    0.00249895  0.01547415  0.02562522]
+  [ 0.00381061  0.01124655  0.00704325  0.02541224  0.13330107  0.01689826
+    0.01232815  0.00643004  0.00499948]]
+
+ [[ 0.00222884  0.01873355  0.02347761  0.04217004  0.04436155  0.02916896
+    0.03580889  0.01976478  0.01399942]
+  [ 0.00922168  0.01071582  0.01380053  0.10009506  0.09301306  0.01187018
+    0.01550533  0.00866581  0.00643561]]]
+```
+
+```
+[[[ 0.05323969  0.040701    0.01576395  0.02282596  0.07068123  0.03564167
+    0.00263313  0.00939887  0.02091938]
+  [ 0.01391507  0.01185045  0.00475391  0.01755162  0.1328273   0.01264098
+    0.01092408  0.00677531  0.00526794]]
+
+ [[ 0.00234852  0.00705782  0.02134361  0.04443442  0.06453884  0.02467325
+    0.03773169  0.02082607  0.0049391 ]
+  [ 0.00971685  0.01129122  0.01454157  0.1054698   0.09800752  0.01250757
+    0.01633791  0.00913113  0.00678118]]]
+```
+
