@@ -1,5 +1,3 @@
-# Visual Studio 2013编译Openblas
-
 #### Cmake生成工程
 
 openblas的版本是2.20，cmake-gui生成VS工程，开始编译。编译Windows版本比编译嵌入式平台的Linux-Arm版本还费劲。
@@ -80,7 +78,7 @@ PATH环境变量中设置sed和awk的安装位置
 解决方法：
 
 CMakeLists.txt中有一行这样的代码：
-COMMAND \${SED} 's/common/openblas_config/g' \${CMAKE_CURRENT_SOURCE_DIR}/cblas.h > "${CMAKE_BINARY_DIR}/cblas.tmp"
+COMMAND ${SED} 's/common/openblas_config/g' ${CMAKE_CURRENT_SOURCE_DIR}/cblas.h > "${CMAKE_BINARY_DIR}/cblas.tmp"
 
 这行代码在Linux的sed命令执行下是没问题的，在Windows的sed命令执行下有问题，实测：
 
@@ -90,13 +88,13 @@ Window: sed "s/common/openblas_config/g" cblas.h > cblas.tmp可以正常执行�
 
 CMakeLists.txt中相应行替换为：
 
-COMMAND \${SED} "s/common/openblas_config/g" \${CMAKE_CURRENT_SOURCE_DIR}/cblas.h > "${CMAKE_BINARY_DIR}/cblas.tmp"
+COMMAND ${SED} "s/common/openblas_config/g" ${CMAKE_CURRENT_SOURCE_DIR}/cblas.h > "${CMAKE_BINARY_DIR}/cblas.tmp"
 
 awk也有同样的问题：
 
 CMakeLists.txt中代码是：
 
-COMMAND \${AWK} 'BEGIN{print \"\#ifndef OPENBLAS_F77BLAS_H\" \; print \"\#define OPENBLAS_F77BLAS_H\" \; print \"\#include \\"openblas_config.h\\" \"}; NF {print}; END{print \"\#endif\"}' \${CMAKE_CURRENT_SOURCE_DIR}/common_interface.h > ${CMAKE_BINARY_DIR}/f77blas.h
+COMMAND ${AWK} 'BEGIN{print \"\#ifndef OPENBLAS_F77BLAS_H\" \; print \"\#define OPENBLAS_F77BLAS_H\" \; print \"\#include \\"openblas_config.h\\" \"}; NF {print}; END{print \"\#endif\"}' ${CMAKE_CURRENT_SOURCE_DIR}/common_interface.h > ${CMAKE_BINARY_DIR}/f77blas.h
 
 Linux可正常执行的awk命令是：
 
@@ -112,7 +110,7 @@ awk "BEGIN{print \"#ifndef OPENBLAS_F77BLAS_H\" ; print \"#define OPENBLAS_F77BL
 
 #### 错误4
 
-COMMAND cp "\${CMAKE_BINARY_DIR}/cblas.tmp" "${CMAKE_BINARY_DIR}/cblas.h"
+COMMAND cp "${CMAKE_BINARY_DIR}/cblas.tmp" "${CMAKE_BINARY_DIR}/cblas.h"
 1>  'cp' 不是内部或外部命令，也不是可运行的程序
 1>  或批处理文件。
 
@@ -122,8 +120,8 @@ Windows的拷贝文件的命令是copy，Linux的拷贝文件的命令是cp。
 
 然而改成下面就解决问题了吗？No, No, No!
 
-COMMAND copy "\${CMAKE_BINARY_DIR}/cblas.tmp" "${CMAKE_BINARY_DIR}/cblas.h"
+COMMAND copy "${CMAKE_BINARY_DIR}/cblas.tmp" "${CMAKE_BINARY_DIR}/cblas.h"
 
 经过调试，正确的写法应该是：
 
-COMMAND \${CMAKE_COMMAND} -E copy \${CMAKE_BINARY_DIR}/cblas.tmp ${CMAKE_BINARY_DIR}/cblas.h
+COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/cblas.tmp ${CMAKE_BINARY_DIR}/cblas.h
