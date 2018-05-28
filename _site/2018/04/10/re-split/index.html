@@ -1,0 +1,31 @@
+<p>要从下面字符串中提取rect info</p>
+
+<p>a = ‘Bounding box for object 1 “PAScarSide” (Xmin, Ymin) - (Xmax, Ymax) : (14, 45) - (238, 111)’</p>
+
+<hr />
+
+<p>得到结果，需要提取的rect info丢失了：</p>
+
+<p>import re</p>
+
+<p>re.split(r’[\s,()-:]+’, a)</p>
+
+<p>[‘Bounding’, ‘box’, ‘for’, ‘object’, ‘“PAScarSide”’, ‘Xmin’, ‘Ymin’, ‘Xmax’, ‘Ymax’, ‘’]</p>
+
+<hr />
+
+<p>经过调试：</p>
+
+<p>re.split(r’[\s”(,):-]+’, a)
+[‘Bounding’, ‘box’, ‘for’, ‘object’, ‘1’, ‘PAScarSide’, ‘Xmin’, ‘Ymin’, ‘Xmax’, ‘Ymax’, ‘14’, ‘45’, ‘238’, ‘111’, ‘’]</p>
+
+<hr />
+
+<p>测试发现只要有[-:]就会有问题，写成[:-]就不会有问题：
+re.split(r’[\s”(,)-:]+’, a)
+[‘Bounding’, ‘box’, ‘for’, ‘object’, ‘PAScarSide’, ‘Xmin’, ‘Ymin’, ‘Xmax’, ‘Ymax’, ‘’]</p>
+
+<hr />
+
+<p>再次测试，发现有[:-)]，[-\s]，[)-\n]等等都会有问题，呵呵:-)</p>
+

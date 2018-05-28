@@ -4,13 +4,511 @@
  <title>Jdnie</title>
  <link href="http://getpoole.com/atom.xml" rel="self"/>
  <link href="http://getpoole.com/"/>
- <updated>2018-03-28T10:25:43+08:00</updated>
+ <updated>2018-05-28T17:00:59+08:00</updated>
  <id>http://getpoole.com</id>
  <author>
    <name>Mark Otto</name>
    <email>markdotto@gmail.com</email>
  </author>
 
+ 
+ <entry>
+   <title>Visual studio 2013编译openblas</title>
+   <link href="http://getpoole.com/2018/05/25/Visual-Studio-2013%E7%BC%96%E8%AF%91Openblas/"/>
+   <updated>2018-05-25T00:00:00+08:00</updated>
+   <id>http://getpoole.com/2018/05/25/Visual Studio 2013编译Openblas</id>
+   <content type="html">&lt;h4 id=&quot;cmake&quot;&gt;Cmake生成工程&lt;/h4&gt;
+
+&lt;p&gt;openblas的版本是2.20，cmake-gui生成VS工程，开始编译。编译Windows版本比编译嵌入式平台的Linux-Arm版本还费劲。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://raw.githubusercontent.com/jdnie/jdnie.github.io/master/public/1527214403481.png&quot; alt=&quot;52721440348&quot; /&gt;&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h4 id=&quot;section&quot;&gt;错误0&lt;/h4&gt;
+
+&lt;p&gt;&lt;br /&gt;error MSB3073: 命令“set local
+&lt;br /&gt;perl F:/deepLearn/git/xianyi-OpenBLAS-6d2da63/exports/gensymbol win2k GENERIC dummy 0 0 1 1 0 0 “” ”” &amp;gt; F:/deepLearn/git/xianyi-OpenBLAS-6d2da63/build/openblas.def
+&lt;br /&gt;if %errorlevel% neq 0 goto :cmEnd
+&lt;br /&gt;:cmEnd
+&lt;br /&gt;endlocal &amp;amp; call :cmErrorLevel %errorlevel% &amp;amp; goto :cmDone
+&lt;br /&gt;:cmErrorLevel
+&lt;br /&gt;exit /b %1
+&lt;br /&gt;:cmDone
+&lt;br /&gt;if %errorlevel% neq 0 goto :VCEnd
+&lt;br /&gt;:VCEnd”已退出，代码为 9009。	C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V120\Microsoft.CppCommon.targets	127	5	libopenblas&lt;/p&gt;
+
+&lt;p&gt;解决方法：
+&lt;br /&gt;安装perl&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h4 id=&quot;section-1&quot;&gt;错误1&lt;/h4&gt;
+&lt;p&gt;&lt;br /&gt;error MSB3073: 命令“setlocal
+&lt;br /&gt;“D:\Program Files (x86)\CMake\bin\cmake.exe” -DBUILD_TYPE=Release -P cmake_install.cmake
+&lt;br /&gt;if %errorlevel% neq 0 goto :cmEnd
+&lt;br /&gt;:cmEnd
+&lt;br /&gt;endlocal &amp;amp; call :cmErrorLevel %errorlevel% &amp;amp; goto :cmDone
+&lt;br /&gt;:cmErrorLevel
+&lt;br /&gt;exit /b %1
+&lt;br /&gt;:cmDone
+&lt;br /&gt;if %errorlevel% neq 0 goto :VCEnd
+&lt;br /&gt;:VCEnd”已退出，代码为 1。	C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V120\Microsoft.CppCommon.targets	132	5	INSTALL
+&lt;br /&gt;
+&lt;br /&gt;查看输出信息发现是由于VS2013没有权限：
+&lt;br /&gt;4&amp;gt;  – Install configuration: “Release”
+&lt;br /&gt;4&amp;gt;  CMake Error at cmake_install.cmake:34 (file):
+&lt;br /&gt;4&amp;gt;    file cannot create directory: C:/Program Files (x86)/OpenBLAS/lib.  Maybe
+&lt;br /&gt;4&amp;gt;    need administrative privileges.&lt;/p&gt;
+
+&lt;p&gt;解决方法：
+&lt;br /&gt;以管理员权限运行VS2013&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h4 id=&quot;section-2&quot;&gt;错误2&lt;/h4&gt;
+&lt;p&gt;&lt;br /&gt;error MSB6006: “cmd.exe”已退出，代码为 9009。	C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V120\Microsoft.CppCommon.targets	170	5	gencblas
+&lt;br /&gt;1&amp;gt;  ‘sed’ 不是内部或外部命令，也不是可运行的程序
+&lt;br /&gt;1&amp;gt;  或批处理文件。
+&lt;br /&gt;3&amp;gt;  ‘awk’ 不是内部或外部命令，也不是可运行的程序
+&lt;br /&gt;3&amp;gt;  或批处理文件。&lt;/p&gt;
+
+&lt;p&gt;解决方法：
+&lt;br /&gt;Windows没有sed和awk命令
+&lt;br /&gt;http://sourceforge.net/projects/gnuwin32/files/gawk/3.1.6-1/gawk-3.1.6-1-bin.zip/download
+&lt;br /&gt;https://sourceforge.net/projects/gnuwin32/files/sed/4.2.1/
+&lt;br /&gt;PATH环境变量中设置sed和awk的安装位置&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h4 id=&quot;section-3&quot;&gt;错误3&lt;/h4&gt;
+&lt;p&gt;&lt;br /&gt;1&amp;gt;  sed：-e 表达式 #1，字符 1：未知的命令：“’”
+&lt;br /&gt;1&amp;gt;C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V120\Microsoft.CppCommon.targets(170,5): error MSB6006: “cmd.exe”已退出，代码为 1。
+&lt;br /&gt;3&amp;gt;  awk: ‘BEGIN{print
+&lt;br /&gt;3&amp;gt;  awk: ^ invalid char ‘’’ in expression
+&lt;br /&gt;3&amp;gt;C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V120\Microsoft.CppCommon.targets(170,5): error MSB6006: “cmd.exe”已退出，代码为 1。&lt;/p&gt;
+
+&lt;p&gt;解决方法：
+&lt;br /&gt;CMakeLists.txt中有一行这样的代码：
+&lt;br /&gt;COMMAND ${SED} ‘s/common/openblas_config/g’ ${CMAKE_CURRENT_SOURCE_DIR}/cblas.h &amp;gt; “${CMAKE_BINARY_DIR}/cblas.tmp”
+&lt;br /&gt;这行代码在Linux的sed命令执行下是没问题的，在Windows的sed命令执行下有问题，实测：
+&lt;br /&gt;Linux: sed ‘s/common/openblas_config/g’ cblas.h &amp;gt; cblas.tmp可以正常执行
+&lt;br /&gt;Window: sed “s/common/openblas_config/g” cblas.h &amp;gt; cblas.tmp可以正常执行，即单引号换为双引号
+&lt;br /&gt;CMakeLists.txt中相应行替换为：
+&lt;br /&gt;COMMAND ${SED} “s/common/openblas_config/g” ${CMAKE_CURRENT_SOURCE_DIR}/cblas.h &amp;gt; “${CMAKE_BINARY_DIR}/cblas.tmp”&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;awk也有同样的问题：
+&lt;br /&gt;CMakeLists.txt中代码是：
+&lt;br /&gt;COMMAND ${AWK} ‘BEGIN{print &quot;#ifndef OPENBLAS_F77BLAS_H&quot; \; print &quot;#define OPENBLAS_F77BLAS_H&quot; \; print &quot;#include \“openblas_config.h\” &quot;}; NF {print}; END{print &quot;#endif&quot;}’ ${CMAKE_CURRENT_SOURCE_DIR}/common_interface.h &amp;gt; ${CMAKE_BINARY_DIR}/f77blas.h
+&lt;br /&gt;Linux可正常执行的awk命令是：
+&lt;br /&gt;awk ‘BEGIN{print “#ifndef OPENBLAS_F77BLAS_H” ; print “#define OPENBLAS_F77BLAS_H” ; print “#include &quot;openblas_config.h&quot; “}; NF {print}; END{print “#endif”}’ common_interface.h &amp;gt; f77blas.h
+&lt;br /&gt;Windows可正常执行的awk命令是：
+&lt;br /&gt;awk “BEGIN{print &quot;#ifndef OPENBLAS_F77BLAS_H&quot; ; print &quot;#define OPENBLAS_F77BLAS_H&quot; ; print &quot;#include \&quot;openblas_config.h\&quot; &quot;}; NF {print}; END{print &quot;#endif&quot;}” common_interface.h &amp;gt; f77blas.h&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;但更为简洁的处理方法是不用sed和awk，直接生成好文件拷贝过去就可以了，也就不用调试复杂的sed和awk命令了，Window版本的sed和awk也不用安装了。&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h4 id=&quot;section-4&quot;&gt;错误4&lt;/h4&gt;
+&lt;p&gt;&lt;br /&gt;COMMAND cp “${CMAKE_BINARY_DIR}/cblas.tmp” “${CMAKE_BINARY_DIR}/cblas.h”
+&lt;br /&gt;1&amp;gt;  ‘cp’ 不是内部或外部命令，也不是可运行的程序
+&lt;br /&gt;1&amp;gt;  或批处理文件。&lt;/p&gt;
+
+&lt;p&gt;解决方法：
+&lt;br /&gt;Windows的拷贝文件的命令是copy，Linux的拷贝文件的命令是cp。
+&lt;br /&gt;然而改成下面就解决问题了吗？No, No, No!
+&lt;br /&gt;COMMAND copy “${CMAKE_BINARY_DIR}/cblas.tmp” “${CMAKE_BINARY_DIR}/cblas.h”
+&lt;br /&gt;经过调试，正确的写法应该是：
+&lt;br /&gt;COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/cblas.tmp ${CMAKE_BINARY_DIR}/cblas.h&lt;/p&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>Zbar二维码识别</title>
+   <link href="http://getpoole.com/2018/04/17/Zbar%E4%BA%8C%E7%BB%B4%E7%A0%81%E8%AF%86%E5%88%AB/"/>
+   <updated>2018-04-17T00:00:00+08:00</updated>
+   <id>http://getpoole.com/2018/04/17/Zbar二维码识别</id>
+   <content type="html">&lt;p&gt;本来想自己开发一个识别二维码的程序，无非是图像预处理，仿射变换，二值化，协议解析等等。然而网上有现成的开源库，也就不必重复造轮子了。&lt;/p&gt;
+
+&lt;p&gt;源码路径：&lt;a href=&quot;https://github.com/ZBar/ZBar&quot;&gt;https://github.com/ZBar/ZBar&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;为何是ZBar？C语言，速度快。ZXing主要是java接口，C也是在java之上封装的。&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;&lt;strong&gt;编译X86的库&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;shell
+./configure --prefix=$PWD/x86 --disable-pthread --disable-video --disable-assert --with-pic --without-xshm --without-xv --without-jpeg --without-imagemagick --without-gtk --without-python --without-qt
+make;make install
+g++ -o test test.cpp -I./include ./lib/libzbar.a -lrt
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;在x64环境下编译测试程序时不需要-lrt。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;编译嵌入式平台的库&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;shell
+./configure --prefix=$PWD/arm --disable-pthread --disable-video --disable-assert --with-pic --without-xshm --without-xv --without-jpeg --without-imagemagick --without-gtk --without-python --without-qt --host=arm-hisiv300-linux
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;尝试过配置CC/CXX=arm-hisiv300-linux-gcc/g++，–host=arm，–host=arm-hisiv300-linux- 等。&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;&lt;strong&gt;编译问题&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;shell
+In file included from /usr/include/stdio.h:936:0,
+                 from zbar/debug.h:60,
+                 from zbar/scanner.c:34:
+/usr/include/x86_64-linux-gnu/bits/stdio2.h:139:1: error: expected identifier or ‘(’ before ‘{’ token
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;解决方法一：把Debug.h中的相关代码注释掉。&lt;/p&gt;
+
+&lt;p&gt;解决方法二：configure时—disable-assert。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;中文乱码&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;我没有遇到，测试过带中文信息的二维码，能正常识别，输出的string中，中文字符的编码方式是UTF-8，或许后期的测试会遇到。&lt;/p&gt;
+
+&lt;p&gt;网上有说将zbar/qrcode/qrdextxt.c中的&lt;/p&gt;
+
+&lt;p&gt;latin1_cd=iconv_open(“UTF-8”,”ISO8859-1”);修改为&lt;/p&gt;
+
+&lt;p&gt;latin1_cd=iconv_open(“UTF-8”,”GBK”);&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;&lt;strong&gt;代码中的坑&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;错误代码一&lt;/p&gt;
+
+&lt;p&gt;```c++
+ImageScanner scanner;      &lt;br /&gt;
+scanner.set_config(ZBAR_NONE, ZBAR_CFG_ENABLE, 1);
+Image imageZbar(width, height, “Y800”, gray, width*height);&lt;/p&gt;
+
+&lt;p&gt;scanner.scan(imageZbar); //扫描条码    &lt;br /&gt;
+Image::SymbolIterator symbol = imageZbar.symbol_begin();
+for(;symbol != imageZbar.symbol_end();++symbol)    &lt;br /&gt;
+{
+    std::string data = symbol-&amp;gt;get_data();
+    printf(“type : %s \n”, symbol-&amp;gt;get_type_name().c_str());
+    printf(“data : %s \n”, data.c_str());
+}&lt;/p&gt;
+
+&lt;p&gt;printf(“scan again!\n”);
+scanner.scan(imageZbar); //扫描条码
+symbol = imageZbar.symbol_begin();
+for(;symbol != imageZbar.symbol_end();++symbol)    &lt;br /&gt;
+{
+    std::string data = symbol-&amp;gt;get_data();
+    printf(“type : %s \n”, symbol-&amp;gt;get_type_name().c_str());
+    printf(“data : %s \n”, data.c_str());
+}
+```&lt;/p&gt;
+
+&lt;p&gt;这样会出现coredump！问题不在scanner，也不在imageZbar，而在symbol。&lt;/p&gt;
+
+&lt;p&gt;错误代码二&lt;/p&gt;
+
+&lt;p&gt;```c++
+ImageScanner scanner;      &lt;br /&gt;
+scanner.set_config(ZBAR_NONE, ZBAR_CFG_ENABLE, 1);
+Image imageZbar(width, height, “Y800”, gray, width*height);&lt;/p&gt;
+
+&lt;p&gt;scanner.scan(imageZbar); //扫描条码    &lt;br /&gt;
+Image::SymbolIterator symbol;
+for(symbol = imageZbar.symbol_begin();symbol != imageZbar.symbol_end();++symbol)
+{
+    std::string data = symbol-&amp;gt;get_data();
+    printf(“type : %s \n”, symbol-&amp;gt;get_type_name().c_str());
+    printf(“data : %s \n”, data.c_str());
+}
+```&lt;/p&gt;
+
+&lt;p&gt;这样也会出问题的，看清楚Image::SymbolIterator怎么用了么？深坑不谢。&lt;/p&gt;
+
+&lt;p&gt;正确用法&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;c++
+Image::SymbolIterator symbol = imageZbar.symbol_begin();
+for(;symbol != imageZbar.symbol_end();++symbol)
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;That’s all！嵌入式设备上二维码识别程序已运行成功。&lt;/p&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>Skimage Hog</title>
+   <link href="http://getpoole.com/2018/04/11/skimage-hog/"/>
+   <updated>2018-04-11T00:00:00+08:00</updated>
+   <id>http://getpoole.com/2018/04/11/skimage-hog</id>
+   <content type="html">&lt;p&gt;SVM+Hog在一些图像算法中也还是有一定的存在价值，在将scikit-image的hog特征计算用c语言实现时，c计算的结果和python计算的结果总是有一点偏差。&lt;/p&gt;
+
+&lt;p&gt;```c++
+float orie_flag[10] = {0.0, 0.363969900364, 0.8390986263, 1.73204726945, 5.67124270781,
+            -5.67133071011, -1.73205788383, -0.839103148256, -0.363972905488, -0.0};
+Mat sobel_y = Mat::zeros(Size(64,64), CV_32FC1);
+Mat sobel_x = Mat::zeros(Size(64,64), CV_32FC1);
+Mat magn = Mat::zeros(Size(64,64), CV_32FC1);
+Mat orie = Mat::zeros(Size(64,64), CV_32FC1);
+float ceils[8&lt;em&gt;8&lt;/em&gt;9] = {0};
+float blocks[7&lt;em&gt;7&lt;/em&gt;9*4] = {0};&lt;/p&gt;
+
+&lt;p&gt;for (int i=0; i&amp;lt;64; i++)
+{
+    for (int j=0; j&amp;lt;64; j++)
+    {
+        gray.at&lt;float&gt;(i,j) = sqrt(gray.at&lt;float&gt;(i,j));
+    }
+}&lt;/float&gt;&lt;/float&gt;&lt;/p&gt;
+
+&lt;p&gt;for (int i=0; i&amp;lt;64; i++)
+{
+    for (int j=1; j&amp;lt;63; j++)
+    {
+        sobel_x.at&lt;float&gt;(i, j) = gray.at&lt;float&gt;(i,j+1) - gray.at&lt;float&gt;(i,j-1);
+    }
+}&lt;/float&gt;&lt;/float&gt;&lt;/float&gt;&lt;/p&gt;
+
+&lt;p&gt;for (int i=1; i&amp;lt;63; i++)
+{
+    for (int j=0; j&amp;lt;64; j++)
+    {
+        sobel_y.at&lt;float&gt;(i, j) = gray.at&lt;float&gt;(i+1,j) - gray.at&lt;float&gt;(i-1,j);
+    }
+}&lt;/float&gt;&lt;/float&gt;&lt;/float&gt;&lt;/p&gt;
+
+&lt;p&gt;for (int i=0; i&amp;lt;64; i++)
+{
+    for (int j=0; j&amp;lt;64; j++)
+    {
+        magn.at&lt;float&gt;(i, j) = sqrt(sobel_x.at&lt;float&gt;(i, j)*sobel_x.at&lt;float&gt;(i, j) + sobel_y.at&lt;float&gt;(i, j)*sobel_y.at&lt;float&gt;(i, j));
+    }
+}&lt;/float&gt;&lt;/float&gt;&lt;/float&gt;&lt;/float&gt;&lt;/float&gt;&lt;/p&gt;
+
+&lt;p&gt;for (int i=0; i&amp;lt;64; i++)
+{
+    for (int j=0; j&amp;lt;64; j++)
+    {
+        orie.at&lt;float&gt;(i, j) = sobel_y.at&lt;float&gt;(i, j) / (sobel_x.at&lt;float&gt;(i, j) + 0.00001);
+    }
+}&lt;/float&gt;&lt;/float&gt;&lt;/float&gt;&lt;/p&gt;
+
+&lt;p&gt;for (int i=0; i&amp;lt;8; i++)
+{
+    for (int j=0; j&amp;lt;8; j++)
+    {
+        for (int m=0; m&amp;lt;8; m++)
+        {
+            for (int n=0; n&amp;lt;8; n++)
+            {
+                int k;
+                float tmp = orie.at&lt;float&gt;(i*8+m, j*8+n);
+                if (tmp &amp;gt;= 0)
+                {
+                    for (k=0; k&amp;lt;4; k++)
+                    {
+                        if (tmp &amp;gt;= orie_flag[k] &amp;amp;&amp;amp; tmp &amp;lt; orie_flag[k+1])
+                        {
+                            break;
+                        }
+                    }
+                    ceils[(i*8+j)*9 + k] += magn.at&lt;float&gt;(i*8+m, j*8+n);
+                }
+                else
+                {
+                    for (k=9; k&amp;gt;5; k--)
+                    {
+                        if (tmp &amp;lt;= orie_flag[k] &amp;amp;&amp;amp; tmp &amp;gt; orie_flag[k-1])
+                        {
+                            break;
+                        }
+                    }
+                    k = k-1;
+                    ceils[(i*8+j)*9 + k] += magn.at&lt;float&gt;(i*8+m, j*8+n);
+                }
+            }
+        }
+    }
+}&lt;/float&gt;&lt;/float&gt;&lt;/float&gt;&lt;/p&gt;
+
+&lt;p&gt;for (int i=0; i&amp;lt;7; i++)
+{
+    for (int j=0; j&amp;lt;7; j++)
+    {
+        float sum_ = 0.00001;
+        for (int k=0; k&amp;lt;9; k++)
+        {
+            sum_ += abs(ceils[(i&lt;em&gt;8+j)&lt;/em&gt;9 + k]);
+            sum_ += abs(ceils[(i&lt;em&gt;8+(j+1))&lt;/em&gt;9 + k]);
+            sum_ += abs(ceils[((i+1)&lt;em&gt;8+(j+1))&lt;/em&gt;9 + k]);
+            sum_ += abs(ceils[((i+1)&lt;em&gt;8+j)&lt;/em&gt;9 + k]);
+        }&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    for (int k=0; k&amp;lt;9; k++)
+    {
+        blocks[(i*7+j)*36 + k] = ceils[(i*8+j)*9 + k] / sum_;
+        blocks[(i*7+j)*36 + k + 9] = ceils[(i*8+(j+1))*9 + k] / sum_;
+        blocks[(i*7+j)*36 + k + 18] = ceils[((i+1)*8+j)*9 + k] / sum_;
+        blocks[(i*7+j)*36 + k + 27] = ceils[((i+1)*8+(j+1))*9 + k] / sum_;
+    }
+} }
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;for (int i=0; i&amp;lt;7&lt;em&gt;7&lt;/em&gt;4*9; i++)
+{
+    features[feat_idx++] = blocks[i];
+}
+```&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;python
+from skimage.feature import hog
+hog_feat = hog(img, orientations=9,
+                   pixels_per_cell=(8, 8),
+                   cells_per_block=(2, 2),
+                   transform_sqrt=True,
+                   visualise=False, feature_vector=True)
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;原因：&lt;/p&gt;
+
+&lt;p&gt;python中安装的scikit-image是0.13版本的，它在计算hog特征时是这样计算sobel的：&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;python
+gy, gx = [np.ascontiguousarray(g, dtype=np.double)
+              for g in np.gradient(image)]
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;最新版和scikit-image和0.13之前的版本，在计算hog特征时是这样计算sobel的：&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;python
+g_row = np.empty(channel.shape, dtype=np.double)
+g_row[0, :] = 0
+g_row[-1, :] = 0
+g_row[1:-1, :] = channel[2:, :] - channel[:-2, :]
+g_col = np.empty(channel.shape, dtype=np.double)
+g_col[:, 0] = 0
+g_col[:, -1] = 0
+g_col[:, 1:-1] = channel[:, 2:] - channel[:, :-2]
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;在C代码中它的区别就应该是这样的：&lt;/p&gt;
+
+&lt;p&gt;```c++
+for (int i=0; i&amp;lt;64; i++)
+{
+    sobel_x.at&lt;float&gt;(i, 0) = (gray.at&lt;float&gt;(i,1) - gray.at&lt;float&gt;(i,0));
+    for (int j=1; j&amp;lt;63; j++)
+    {
+        sobel_x.at&lt;float&gt;(i, j) = (gray.at&lt;float&gt;(i,j+1) - gray.at&lt;float&gt;(i,j-1)) / 2;
+    }
+    sobel_x.at&lt;float&gt;(i, 63) = (gray.at&lt;float&gt;(i,63) - gray.at&lt;float&gt;(i,62));
+}&lt;/float&gt;&lt;/float&gt;&lt;/float&gt;&lt;/float&gt;&lt;/float&gt;&lt;/float&gt;&lt;/float&gt;&lt;/float&gt;&lt;/float&gt;&lt;/p&gt;
+
+&lt;p&gt;for (int j=0; j&amp;lt;64; j++)
+{
+    sobel_y.at&lt;float&gt;(0, j) = (gray.at&lt;float&gt;(1,j) - gray.at&lt;float&gt;(0,j));
+    for (int i=1; i&amp;lt;63; i++)
+    {
+        sobel_y.at&lt;float&gt;(i, j) = (gray.at&lt;float&gt;(i+1,j) - gray.at&lt;float&gt;(i-1,j)) / 2;
+    }
+    sobel_y.at&lt;float&gt;(63, j) = (gray.at&lt;float&gt;(63,j) - gray.at&lt;float&gt;(62,j));
+}
+```&lt;/float&gt;&lt;/float&gt;&lt;/float&gt;&lt;/float&gt;&lt;/float&gt;&lt;/float&gt;&lt;/float&gt;&lt;/float&gt;&lt;/float&gt;&lt;/p&gt;
+
+&lt;p&gt;```c++
+for (int i=0; i&amp;lt;64; i++)
+{
+    for (int j=1; j&amp;lt;63; j++)
+    {
+        sobel_x.at&lt;float&gt;(i, j) = gray.at&lt;float&gt;(i,j+1) - gray.at&lt;float&gt;(i,j-1);
+    }
+}&lt;/float&gt;&lt;/float&gt;&lt;/float&gt;&lt;/p&gt;
+
+&lt;p&gt;for (int i=1; i&amp;lt;63; i++)
+{
+    for (int j=0; j&amp;lt;64; j++)
+    {
+        sobel_y.at&lt;float&gt;(i, j) = gray.at&lt;float&gt;(i+1,j) - gray.at&lt;float&gt;(i-1,j);
+    }
+}
+```&lt;/float&gt;&lt;/float&gt;&lt;/float&gt;&lt;/p&gt;
+
+&lt;p&gt;来看下差异吧，都取同一幅图像的第一个Block的Hog特征，它有4个Cell，9个方向，差异还是有一点点的：&lt;/p&gt;
+
+&lt;p&gt;```
+[[[ 0.04225977  0.03862688  0.01705302  0.02437312  0.07293652  0.04062629
+    0.00249895  0.01547415  0.02562522]
+  [ 0.00381061  0.01124655  0.00704325  0.02541224  0.13330107  0.01689826
+    0.01232815  0.00643004  0.00499948]]&lt;/p&gt;
+
+&lt;p&gt;[[ 0.00222884  0.01873355  0.02347761  0.04217004  0.04436155  0.02916896
+    0.03580889  0.01976478  0.01399942]
+  [ 0.00922168  0.01071582  0.01380053  0.10009506  0.09301306  0.01187018
+    0.01550533  0.00866581  0.00643561]]]
+```&lt;/p&gt;
+
+&lt;p&gt;```
+[[[ 0.05323969  0.040701    0.01576395  0.02282596  0.07068123  0.03564167
+    0.00263313  0.00939887  0.02091938]
+  [ 0.01391507  0.01185045  0.00475391  0.01755162  0.1328273   0.01264098
+    0.01092408  0.00677531  0.00526794]]&lt;/p&gt;
+
+&lt;p&gt;[[ 0.00234852  0.00705782  0.02134361  0.04443442  0.06453884  0.02467325
+    0.03773169  0.02082607  0.0049391 ]
+  [ 0.00971685  0.01129122  0.01454157  0.1054698   0.09800752  0.01250757
+    0.01633791  0.00913113  0.00678118]]]
+```&lt;/p&gt;
+
+</content>
+ </entry>
+ 
+ <entry>
+   <title>Re Split</title>
+   <link href="http://getpoole.com/2018/04/10/re-split/"/>
+   <updated>2018-04-10T00:00:00+08:00</updated>
+   <id>http://getpoole.com/2018/04/10/re-split</id>
+   <content type="html">&lt;p&gt;要从下面字符串中提取rect info&lt;/p&gt;
+
+&lt;p&gt;a = ‘Bounding box for object 1 “PAScarSide” (Xmin, Ymin) - (Xmax, Ymax) : (14, 45) - (238, 111)’&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;得到结果，需要提取的rect info丢失了：&lt;/p&gt;
+
+&lt;p&gt;import re&lt;/p&gt;
+
+&lt;p&gt;re.split(r’[\s,()-:]+’, a)&lt;/p&gt;
+
+&lt;p&gt;[‘Bounding’, ‘box’, ‘for’, ‘object’, ‘“PAScarSide”’, ‘Xmin’, ‘Ymin’, ‘Xmax’, ‘Ymax’, ‘’]&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;经过调试：&lt;/p&gt;
+
+&lt;p&gt;re.split(r’[\s”(,):-]+’, a)
+[‘Bounding’, ‘box’, ‘for’, ‘object’, ‘1’, ‘PAScarSide’, ‘Xmin’, ‘Ymin’, ‘Xmax’, ‘Ymax’, ‘14’, ‘45’, ‘238’, ‘111’, ‘’]&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;测试发现只要有[-:]就会有问题，写成[:-]就不会有问题：
+re.split(r’[\s”(,)-:]+’, a)
+[‘Bounding’, ‘box’, ‘for’, ‘object’, ‘PAScarSide’, ‘Xmin’, ‘Ymin’, ‘Xmax’, ‘Ymax’, ‘’]&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;再次测试，发现有[:-)]，[-\s]，[)-\n]等等都会有问题，呵呵:-)&lt;/p&gt;
+
+</content>
+ </entry>
  
  <entry>
    <title>开始</title>
